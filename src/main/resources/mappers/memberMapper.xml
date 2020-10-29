@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sol.desk.mapper.MemberMapper">
+
+  <resultMap type="sol.desk.domain.MemberVo" id="memberMap">
+    <id property="userid" column="userid"/>
+    <result property="userid" column="userid"/>
+    <result property="userpw" column="userpw"/>
+    <result property="username" column="username"/>
+    <result property="email" column="email"/>
+    <result property="tel" column="tel"/>
+    <collection property="authList" resultMap="authMap">
+    </collection> 
+  </resultMap>
+  
+  <resultMap type="sol.desk.domain.AuthVo" id="authMap">
+    <result property="userid" column="userid"/>
+    <result property="auth" column="auth"/>
+  </resultMap>
+
+	<select id="readExist" resultMap="memberMap">
+		<![CDATA[
+			SELECT mem.userid, userpw, username, email, tel, auth
+			FROM tbl_member mem LEFT JOIN tbl_member_auth auth
+			on mem.userid = auth.userid
+			WHERE mem.userid = #{username}
+		]]>
+	</select>
+	
+	<select id="idCheck" resultType="int">
+		<![CDATA[
+			SELECT count(*) FROM tbl_member
+			WHERE userid = #{userid}
+		]]>
+	</select>
+	
+	<insert id="register">
+		<![CDATA[
+			insert into tbl_member(userid,userpw,username,email,tel)
+			values (#{userid},#{userpw},#{username},#{email},#{tel})
+		]]>
+	</insert>
+		<insert id="register_auth">
+		<![CDATA[
+			insert into tbl_member_auth(userid,auth)
+			values (#{userid},"ROLE_MEMBER")
+		]]>
+	</insert>
+
+</mapper>

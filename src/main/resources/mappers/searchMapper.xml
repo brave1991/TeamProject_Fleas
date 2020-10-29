@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sol.desk.mapper.BoardMapper">
+	
+	<select id="sort" resultType="sol.desk.domain.FleaBoardVo">
+	<![CDATA[
+			SELECT *
+			FROM FLEAFORM
+			ORDER BY #{sort} DESC
+		]]>
+	</select>
+	
+
+</mapper>

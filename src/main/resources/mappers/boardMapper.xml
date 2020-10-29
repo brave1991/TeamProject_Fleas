@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sol.desk.mapper.BoardMapper">
+
+	<sql id="criteria">
+		<trim prefix="(" suffix=") AND " prefixOverrides="OR">
+			<foreach item='type' collection="typeArr">
+				<trim prefix="OR">
+					<choose>
+						<when test="type == 'T'.toString()">
+							title like '%' ||#{keyword}||'%'
+						</when>
+						<when test="type == 'C'.toString()">
+							content like '%' ||#{keyword}||'%'
+						</when>
+					</choose>
+				</trim>
+			</foreach>
+		</trim>
+	</sql>
+
+	<resultMap type="sol.desk.domain.FleaBoardVo" id="FBMap">
+		<id property="fno" column="fno" />
+		<result property="title" column="title" />
+		<result property="content" column="content" />
+		<result property="opnedate" column="opnedate" />
+		<result property="enddate" column="enddate" />
+		<result property="location" column="location" />
+		<result property="userid" column="userid" />
+	</resultMap>
+
+	<resultMap type="sol.desk.domain.ApplyVo" id="AMap">
+		<id property="ano" column="ano" />
+		<result property="aplycontent" column="aplycontent" />
+		<result property="email" column="email" />
+		<result property="name" column="name" />
+		<result property="fno" column="fno" />
+		<result property="userid" column="userid" />
+	</resultMap>
+
+
+	<insert id="insertFBoard">
+		<![CDATA[
+			insert into tbl_fleaform (title,content,opendate,enddate,location,userid)
+			values ( #{title}, #{content}, #{opendate}, #{enddate}, #{location},#{userid})
+		]]>
+	</insert>
+
+	<!-- <select id="getFlealist" resultType="sol.desk.domain.FleaBoardVo"> 
+		<![CDATA[ select * from tbl_fleaform ]]> </select> -->
+
+	<select id="getFlea" resultType="sol.desk.domain.FleaBoardVo">
+	<![CDATA[
+			select *
+			from tbl_fleaform
+			where fno = ${fno}
+		]]>
+	</select>
+
+	<insert id="apply">
+		<![CDATA[
+			insert into tbl_apply (aplycontent,email,name,fno,userid)
+			values ( #{aplycontent}, #{email}, #{name}, ${fno}, #{userid} )
+		]]>
+	</insert>
+
+
+	<select id="getmyFlealist" resultMap="FBMap">
+	<![CDATA[
+			select *
+			from tbl_fleaform
+			where userid = #{userid}
+		]]>
+	</select>
+	<select id="getmyApplylist" resultMap="AMap">
+	<![CDATA[
+			select *
+			from tbl_apply
+			where userid = #{userid}
+		]]>
+	</select>
+
+	<select id="readapplylist" resultMap="AMap">
+	<![CDATA[
+		SELECT a.fno, ano, aplycontent, name, email
+		from tbl_apply a JOIN tbl_fleaform f
+		ON a.fno = f.fno WHERE f.fno = #{fno}
+		]]>
+	</select>
+
+	<select id="getFlealist"
+		resultType="sol.desk.domain.FleaBoardVo">
+		<![CDATA[
+		select
+				fno, title, content, opendate, enddate, location
+			from
+				(
+			select
+				@rownum:=@rownum+1 as rn , fno, title, content, opendate, enddate, location
+			from
+				tbl_fleaform
+				where
+				]]>
+		<include refid="criteria"></include>
+			<![CDATA[
+				@rownum < #{pageNum} * #{amount}
+				) c
+			where c.rn > (#{pageNum} -1) * #{amount} and (@rownum:=0)=0
+			]]>
+	</select>
+
+	<select id="getTotalCount" resultType="int">
+
+		select count(*) from tbl_fleaform where
+
+		<include refid="criteria"></include>
+
+		fno > 0
+
+	</select>
+
+</mapper>
